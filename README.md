@@ -21,3 +21,23 @@ Tasks to solve this hands on:
 - [ ] Configure Cookie with same site attribute
 - [ ] Mask credit card number
 - [ ] Encrpt credit card number
+
+
+## URLs summary
+
+### Home page
+
+https://local.0xdbe.dev:8443/
+
+### Dashboard
+
+https://local.0xdbe.dev:8443/dashboard
+
+### Login page
+
+https://local.0xdbe.dev:8443/login
+
+
+### H2 console
+
+https://local.0xdbe.dev:8443/h2-console
