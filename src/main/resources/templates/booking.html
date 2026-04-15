@@ -19,6 +19,9 @@
             <div class="form-container">
                 <p>Room for 2 people:</p>
                 <form th:action="@{/}" method="post">
+                    <input type="hidden"
+                        th:name="${_csrf.parameterName}"
+                        th:value="${_csrf.token}" />
                     <div class="form-row">
                         <label class="form-label" for="checkInDate">Select check in date:</label>
                         <input class="form-input" type="date" id="checkInDate" name="checkInDate" required>
