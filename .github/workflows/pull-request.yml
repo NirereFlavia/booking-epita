@@ -1,0 +1,81 @@
+---
+name: pull-request
+
+on:
+  pull_request:
+
+permissions:
+  actions: read
+  security-events: write
+  contents: read
+
+jobs:
+  # Job 1
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout PR commit
+        uses: actions/checkout@v4
+
+      - name: run osv-scanner after PR
+        uses: google/osv-scanner-action/osv-scanner-action@v1.9.2
+        with:
+          scan-args: |-
+            --format sarif
+            --output after.sarif
+            ./
+        continue-on-error: true
+
+      - name: checkout baseline commit
+        run: git checkout ${{ github.event.pull_request.base.sha }}
+
+      - name: run osv-scanner before PR
+        uses: google/osv-scanner-action/osv-scanner-action@v1.9.2
+        with:
+          scan-args: |-
+            --format sarif
+            --output before.sarif
+            ./
+        continue-on-error: true
+
+      - name: compare results
+        uses: google/osv-scanner-action/osv-reporter-action@v1.9.2
+        with:
+          scan-args: |-
+            --old before.sarif
+            --new after.sarif
+            --output diff.sarif
+        continue-on-error: true
+
+      - name: save differential report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependencies-report
+          path: diff.sarif
+
+  # Job 2
+  source-code-analysis:
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: run semgrep differential
+        run: |
+          semgrep scan \
+            --sarif \
+            --output semgrep.sarif \
+            --config .semgrep \
+            --baseline-commit ${{ github.event.pull_request.base.sha }} \
+            ./
+        continue-on-error: true
+
+      - name: save differential report
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-report
+          path: semgrep.sarif
