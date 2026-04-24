@@ -47,6 +47,7 @@ jobs:
             --old before.sarif
             --new after.sarif
             --output diff.sarif
+            --fail-on-vuln=true
         continue-on-error: true
 
       - name: save differential report
